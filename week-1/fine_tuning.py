@@ -100,7 +100,8 @@ for layer in base_model.layers:
     layer.trainable = False
 
 # compile the model
-model.compile(optimizer='adam', loss='categorical_crossentropy')
+# if required remove one metric
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy', 'categorical_accuracy'])
 
 # train the model on the new data for a few epochs
 model.fit(X_train, y_train, epochs=10, batch_size=64, verbose=0)
@@ -123,13 +124,74 @@ for layer in model.layers[250:]:
 
 # we need to recompile the model for these modifications to take effect
 # we use SGD with a low learning rate
+# if required remove one metric
 from tensorflow.keras.optimizers import SGD
-model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy')
+model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=['accuracy', 'categorical_accuracy'])
 
 # we train our model again (this time fine-tuning the top 1 inception blocks)
 # alongside the top Dense layers
 model.fit(X_train, y_train, epochs=50, batch_size=64, verbose=0)
 
+# Use the following code for training in a mini-batch basis.
+# When limited resources are available.
+# 287 -> number of COVID 19 photos
+# 1595 -> number of Normal photos
+# 4371 -> number of Pneumonia photos
+# Used a mini-batch of maximum 200 photos in one go from each class
+for i in range(23):
+  # 23 would be sufficient to cover all the images in the largest category here (pneumonia)
+  overall = []
+  c = listdir(fp + 'corona')
+  startc = (i*200) % 287
+  endc = ((i*200) + 200) % 287
+  if endc - startc <= 0:
+    endc = 287
+  overall.append(fp + 'corona/' + c for c in c[startc:endc])
+  n = listdir(fp + 'normal')
+  startn = (i*200) % 1595
+  endn = ((i*200) + 200) % 1595
+  if endn - startn <= 0:
+    endn = 1595
+  overall.append(fp + 'normal/' + n for n in n[startn:endn])
+  p = listdir(fp + 'pneumonia')
+  startp = (i*200) % 4371
+  endp = ((i*200) + 200) % 4371
+  if endp - startp <= 0:
+    endp = 4371
+  overall.append(fp + 'pneumonia/' + p for p in p[startp:endp])
+  
+  res = [0] * (endc - startc) + [1] * (endn - startn) + [2] * (endp - startp)
+  res = to_categorical(res, num_classes=3)
+  X = []
+  for path in overall[0]:
+    # print(path)
+    img_file = cv2.imread(path)
+    if img_file is not None:
+      img_file = skimage.transform.resize(img_file, (224, 224, 3))
+      img_arr = np.asarray(img_file)
+      X.append(img_arr)
+  for path in overall[1]:
+    img_file = cv2.imread(path)
+    if img_file is not None:
+      img_file = skimage.transform.resize(img_file, (224, 224, 3))
+      img_arr = np.asarray(img_file)
+      X.append(img_arr)
+  for path in overall[2]:
+    img_file = cv2.imread(path)
+    if img_file is not None:
+      img_file = skimage.transform.resize(img_file, (224, 224, 3))
+      img_arr = np.asarray(img_file)
+      X.append(img_arr)  
+  y = res
+  print(len(X), len(y))
+  X = np.asarray(X)
+  y = np.asarray(y)
+  X, y = shuffle(X, y)
+  # train the model on the new data for a few epochs
+  model.fit(X, y, epochs=10)
+
 # evaluate for the test set
-scores = model.evaluate(X_test, y_test, verbose=0)
+# use the last set of X and y
+# Or pick X and y at random for evaluation purposes
+scores = model.evaluate(X, y, verbose=0)
 print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
