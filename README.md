@@ -5,3 +5,4 @@ COVID 19 detection from X-ray images using deep learning
 The above link contains 3 folders - normal, corona, pneumonia.  
 - ## Progress  
 1. [Week 1](/week-1) completed 
+1. [Week 2](/week-2) completed 
