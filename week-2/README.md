@@ -1,6 +1,6 @@
 ## Report for Week 2  
 All the corresonding codes are available in a single file `week-2.py` above.
-Trained Normal vs COVID 19 classifier with InceptionV3, ResNet50, VGG19, MobileNetV2, Xception.     
+Trained (use of transfer learning, but no fine tuning was required because it already showed a great accuracy) Normal vs COVID 19 classifier with InceptionV3, ResNet50, VGG19, MobileNetV2, Xception.     
 Total number of epochs = `15 epochs`
 
 - **InceptionV3**:  
