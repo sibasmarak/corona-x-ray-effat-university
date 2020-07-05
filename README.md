@@ -6,4 +6,5 @@ The above link contains 3 folders - normal, corona, pneumonia.
 - ## Progress  
 1. [Week 1](/week-1) completed 
 2. [Week 2](/week-2) completed  
-3. [Week 3](/week-3) completed 
+3. [Week 3](/week-3) completed  
+  - the report of week 3 in Google sheets: [Report in sheet](https://drive.google.com/file/d/1qYmbKFsWOspE4Hgnya3GIEkzwEIQ0xUO/view?usp=sharing)
